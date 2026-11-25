@@ -10,4 +10,5 @@ Avoid unnecessary secondary labels and descriptions. Let the layout do the expla
 - Use roughly 16px for body copy and at least 14px for supporting text, with sufficient contrast. Preserve readability on phones rather than shrinking the type.
 - Overview videos and main module detail videos autoplay silently, loop inline, and open in the existing enlarged dialog when clicked. Keep a usable pause control. Video galleries open recordings on demand.
 - Perception focuses on the sensing pipeline and hardware; omit its paper section. Navigation hosts the PSG-Nav video gallery.
+- Use the same compact paper rows on the overview and module pages: thumbnail, linked title, short summary, author/arXiv metadata, and available code/project links. Preserve readable type; do not restore large paper feature cards.
 - All three animated connections run from the module toward System, including Navigation.

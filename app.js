@@ -95,7 +95,19 @@
     update();
   }
   function paperRow(p) {
-    return `<article class="paper-row" data-paper="${p.id}"><a class="paper-image" href="${url(p)}" target="_blank" rel="noopener noreferrer" aria-label="${p.title}"><img src="${p.image}" alt="${p.name} ${copy('paper figure', '论文插图')}" width="240" height="150" loading="lazy"></a><div class="paper-info"><div class="paper-meta"><span class="mono">2026</span>${p.modules.map(id => `<span class="paper-category">${moduleName(id)}</span>`).join('')}</div><h3>${extLink(url(p), p.title)}</h3><p>${t(p.summary)}</p><div class="paper-author">${person(p.lead).name} et al. <span>·</span> arXiv:${p.arxiv}</div></div><a class="paper-open" href="${url(p)}" target="_blank" rel="noopener noreferrer" aria-label="${copy('Read', '阅读')} ${p.name}">${external}</a></article>`;
+    const resources = [
+      p.code ? extLink(p.code, copy('Code', '代码')) : '',
+      p.project ? extLink(p.project, copy('Project page', '项目主页')) : ''
+    ].filter(Boolean).join('');
+    return `<article class="paper-row" data-paper="${p.id}">
+      <a class="paper-image" href="${url(p)}" target="_blank" rel="noopener noreferrer" aria-label="${p.title}"><img src="${p.image}" alt="${p.name} ${copy('paper figure', '论文插图')}" width="240" height="150" loading="lazy"></a>
+      <div class="paper-info">
+        <div class="paper-meta"><span class="mono">2026</span>${p.modules.map(id => `<span class="paper-category">${moduleName(id)}</span>`).join('')}</div>
+        <h3>${extLink(url(p), p.title)}</h3><p>${t(p.summary)}</p>
+        <div class="paper-footer"><div class="paper-author">${person(p.lead).name} et al. <span>·</span> arXiv:${p.arxiv}</div>${resources ? `<div class="paper-resources">${resources}</div>` : ''}</div>
+      </div>
+      <a class="paper-open" href="${url(p)}" target="_blank" rel="noopener noreferrer" aria-label="${copy('Read', '阅读')} ${p.name}">${external}</a>
+    </article>`;
   }
   function research() {
     return `<section class="research-section section-space" id="research"><div class="container"><div class="section-heading"><div><h2>${copy('Research, brought together.', '让研究彼此连接。')}</h2></div></div><div class="research-toolbar"><div class="filter-group" role="group" aria-label="${copy('Filter publications', '筛选论文')}">${['all', 'perception', 'memory', 'navigation'].map(id => `<button class="filter-button ${activeFilter === id ? 'active' : ''}" type="button" data-filter="${id}" aria-pressed="${activeFilter === id}">${id === 'all' ? copy('All research', '全部研究') : moduleName(id)}</button>`).join('')}</div><span class="research-count sr-only" aria-live="polite"></span></div><div id="paper-list">${D.papers.filter(p => activeFilter === 'all' || p.modules.includes(activeFilter)).map(paperRow).join('')}</div></div></section>`;
@@ -123,12 +135,9 @@
       ['04', 'NVIDIA Jetson AGX Xavier', copy('Onboard computer', '机载计算机'), copy('Sensor acquisition, synchronization, and onboard odometry.', '负责传感器数据采集、同步与机载里程计计算。')]
     ].map(([n, name, label, desc]) => `<div class="sensor-item"><span class="mono">${n}</span><div><small>${label}</small><h3>${name}</h3><p>${desc}</p></div></div>`).join('')}</div></div></section>`;
   }
-  function detailPaper(p, memory) {
-    return `<article class="detail-paper"><div class="detail-paper-image"><img src="${p.image}" alt="${p.name} ${copy('research figure', '研究插图')}" width="640" height="360" loading="lazy"></div><div class="detail-paper-copy"><h3>${p.name}</h3><p class="full-paper-title">${p.title}</p><p>${t(p.summary)}</p>${memory ? `<div class="mini-io"><div><span class="eyebrow">${copy('INPUT', '输入')}</span><p>${t(p.input)}</p></div><div><span class="eyebrow">${copy('OUTPUT', '输出')}</span><p>${t(p.output)}</p></div></div>` : ''}<div class="detail-paper-links">${extLink(url(p), copy('Read paper', '阅读论文'), 'text-link')}${p.code ? extLink(p.code, copy('Code', '代码'), 'text-link') : ''}${p.project ? extLink(p.project, copy('Project page', '项目主页'), 'text-link') : ''}</div><span class="detail-author">${copy('First author', '第一作者')}: ${person(p.lead).name} · arXiv:${p.arxiv}</span></div></article>`;
-  }
   function detailResearch(id, papers) {
     if (D.modules[id].showPapers === false) return '';
-    return `<section class="detail-section detail-research"><div class="section-heading"><div><h2>${id === 'memory' ? copy('Three ideas. A richer memory.', '三项工作，丰富场景记忆。') : copy('The work behind it.', '模块背后的研究。')}</h2></div></div>${papers.map(p => detailPaper(p, id === 'memory')).join('')}</section>`;
+    return `<section class="detail-section detail-research"><div class="section-heading"><div><h2>${id === 'memory' ? copy('Three ideas. A richer memory.', '三项工作，丰富场景记忆。') : copy('The work behind it.', '模块背后的研究。')}</h2></div></div><div class="paper-list">${papers.map(paperRow).join('')}</div></section>`;
   }
   function demoSection(id) {
     const groups = D.videoGroups?.[id];

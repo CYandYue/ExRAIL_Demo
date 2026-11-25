@@ -68,3 +68,5 @@ Avoid unnecessary secondary labels and descriptions. Let the layout do the expla
 用标题、留白与布局表达层次，避免装饰性小字、坐标与重复提示；保留必要且易读的研究信息。后续修改遵循 [AGENTS.md](AGENTS.md)。总览页的三个红点均从模块流向 System。
 
 正文通常为 16px，辅助文字至少 14px，并使用更深的文字颜色；手机端保持字号，通过换行和单列布局适配。系统卡片与连线随内容高度自动调整。
+
+总览页与模块详情页共用 `paperRow()` 展示论文：缩略图、标题、简介、作者及 arXiv 信息，并附实际可用的代码或项目链接。论文区域统一采用紧凑列表。
