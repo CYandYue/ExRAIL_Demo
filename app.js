@@ -111,12 +111,12 @@
     const columns = [['inputs', copy('Input', '输入')], ['processing', m.processingLabel ? t(m.processingLabel) : copy('Process', '处理')], ['outputs', copy('Output', '输出')]];
     return `<div class="io-grid${m.interfaceTitle ? ' pipeline-io' : ''}">${columns.map(([key, label], i) => {
       const list = key === 'outputs' && m.interfaceTitle ? 'ol' : 'ul';
-      const items = t(m[key]).map(item => typeof item === 'string' ? `<li>${item}</li>` : `<li><strong>${item.label}</strong><span class="io-item-detail">${item.detail}</span></li>`).join('');
+      const items = t(m[key]).map(item => typeof item === 'string' ? `<li>${item}</li>` : `<li><span>${item.label}</span><span class="io-item-detail">${item.detail}</span></li>`).join('');
       return `<div class="io-card ${i === 1 ? 'process-card' : ''}"><span class="eyebrow">${label}</span><${list}>${items}</${list}>${i < 2 ? `<span class="io-arrow">${arrow}</span>` : ''}</div>`;
     }).join('')}</div>`;
   }
   function platform() {
-    return `<section class="detail-section platform-section"><div class="section-heading"><div><h2>${copy('Meet the mobile platform.', '认识我们的移动平台。')}</h2></div><span class="mono section-side-note">AGILEX SCOUT MINI</span></div><div class="platform-grid"><figure class="robot-figure"><img src="./assets/platform/robot-platform.jpg" alt="Agilex SCOUT MINI robot with RealSense D435 and dual Livox MID360 LiDARs" width="1600" height="1280" loading="lazy"><figcaption>${extLink('https://psg-nav.github.io/', copy('Platform photo · PSG-Nav', '平台照片 · PSG-Nav'))}</figcaption></figure><div class="sensor-list">${[
+    return `<section class="detail-section platform-section"><div class="section-heading"><div><h2>${copy('Meet the mobile platform.', '认识我们的移动平台。')}</h2></div><span class="mono section-side-note">AGILEX SCOUT MINI</span></div><div class="platform-grid"><figure class="robot-figure"><img src="./assets/platform/robot-platform.jpg" alt="Agilex SCOUT MINI robot with RealSense D435 and dual Livox MID360 LiDARs" width="1600" height="1280" loading="lazy"></figure><div class="sensor-list">${[
       ['01', 'RealSense D435', copy('RGB camera', 'RGB 相机'), copy('Visual appearance for RGB-D observations.', '为 RGB-D 观测提供 RGB 外观信息。')],
       ['02', '2 × Livox MID360', copy('LiDAR sensing', '激光雷达'), copy('Surrounding geometry, odometry, and depth correction.', '提供周围环境几何，用于里程计与深度修正。')],
       ['03', 'CH110 IMU', copy('Inertial sensing', '惯性传感器'), copy('Inertial measurements for LiDAR–IMU odometry.', '为激光惯性里程计提供惯性测量。')],
