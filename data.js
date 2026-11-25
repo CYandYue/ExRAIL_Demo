@@ -51,13 +51,26 @@ window.EXRAIL = {
   ],
   modules: {
     perception: {
-      number: '01', name: 'Perception', chineseName: '感知', lead: 'yue', tags: ['Multi-sensor fusion', 'RGB-D', 'Odometry'],
+      number: '01', name: 'Perception', chineseName: '感知', lead: 'yue', tags: ['Dual-LiDAR FAST-LIO', 'Hybrid RGB-D', 'LiDAR depth registration'],
       tagline: { en: 'Ground intelligence in the physical world.', zh: '让智能扎根于真实世界。' },
-      summary: { en: 'Turn RGB, dual-LiDAR, and inertial measurements into a shared geometric foundation.', zh: '融合 RGB、双激光雷达与惯性测量，构建统一的几何感知基础。' },
-      description: { en: 'Our mobile platform combines a RealSense D435, two Livox MID360 LiDARs, and an IMU. The current perception configuration uses multi-fastlio for odometry and pairs RealSense RGB with LiDAR-corrected depth to provide RGB-D observations for downstream scene understanding.', zh: '移动平台搭载 RealSense D435、两个 Livox MID360 激光雷达与 IMU。当前感知方案采用 multi-fastlio 估计里程计，将 RealSense 的 RGB 与经 MID360 点云修正后的深度配对，为下游场景理解提供 RGB-D 观测。' },
-      inputs: { en: ['RealSense D435 RGB', 'Dual MID360 point clouds', 'IMU measurements'], zh: ['RealSense D435 RGB 图像', '双 MID360 点云', 'IMU 惯性测量'] },
-      processing: { en: ['multi-fastlio odometry', 'LiDAR-corrected depth', 'RGB / depth alignment'], zh: ['multi-fastlio 里程计', 'LiDAR 深度修正', 'RGB / 深度配对'] },
-      outputs: { en: ['Robot / camera poses', 'Paired RGB-D observations', 'Geometric scene observations'], zh: ['机器人 / 相机位姿', '配对的 RGB-D 观测', '场景几何观测'] },
+      summary: { en: 'Dual-LiDAR FAST-LIO odometry + hybrid RGB-D with LiDAR-registered depth.', zh: '双雷达 FAST-LIO 里程计 + 复合型 RGB-D（雷达配准深度）。' },
+      description: { en: 'Our perception pipeline combines dual-LiDAR FAST-LIO odometry with hybrid RGB-D built from RealSense RGB and LiDAR-registered depth. It provides camera and chassis poses, the TF tree between components, RGB-D images, and raw LiDAR point clouds.', zh: '感知管线结合双雷达 FAST-LIO 里程计与复合型 RGB-D，将 RealSense RGB 与雷达配准后的深度配对，输出相机与底盘位姿、各部分之间的 TF tree、RGB-D 图像以及雷达原始点云。' },
+      interfaceTitle: { en: 'Pipeline IO', zh: 'Pipeline IO' },
+      processingLabel: { en: 'Module', zh: '模块' },
+      inputs: { en: ['Scene information'], zh: ['场景信息'] },
+      processing: { en: ['Dual-LiDAR FAST-LIO odometry', 'RGB-D with LiDAR-registered depth'], zh: ['双雷达 FAST-LIO 里程计', 'LiDAR 深度配准 RGB-D'] },
+      outputs: {
+        en: [
+          { label: 'Poses & TF tree', detail: 'Camera pose, chassis pose, and the TF tree between components.' },
+          'RGB-D images',
+          'Raw LiDAR point clouds'
+        ],
+        zh: [
+          { label: '位姿与 TF tree', detail: '相机位姿、底盘位姿，以及各部分之间的 TF tree。' },
+          'RGB-D 图像',
+          '雷达原始点云'
+        ]
+      },
       steps: [
         { title: { en: 'Capture complementary signals', zh: '采集互补传感信息' }, text: { en: 'The camera supplies appearance, dual LiDARs capture surrounding geometry, and the IMU provides inertial measurements.', zh: '相机提供外观信息，双激光雷达采集周围环境几何，IMU 提供惯性测量。' } },
         { title: { en: 'Estimate motion', zh: '估计平台运动' }, text: { en: 'multi-fastlio combines LiDAR and inertial observations to estimate the platform trajectory.', zh: 'multi-fastlio 结合激光雷达与惯性观测，估计移动平台的运动轨迹。' } },
