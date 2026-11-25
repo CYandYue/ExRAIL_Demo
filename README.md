@@ -2,6 +2,8 @@
 
 实验室机器人研究展示网站初版。包含系统首页、Perception / Memory / Navigation 三个详情页、中英文切换、论文筛选及视频弹窗，适配桌面与手机。
 
+在线访问：<https://cyandyue.github.io/ExRAIL_Demo/>
+
 ## 本地预览
 
 直接用浏览器打开 `index.html`，或在本目录启动静态服务：
@@ -51,7 +53,19 @@ memory: {
 - `styles.css`：颜色、排版、响应式布局及减少动画偏好支持。
 - `assets/`：本地头像、论文插图、硬件照片、示意图与字体。来源见 [assets/SOURCES.md](assets/SOURCES.md)。
 
-模块使用 `#/perception` 等 hash 路由，资源使用相对路径，方便后续部署到 GitHub Pages 的仓库子路径。当前尚未创建远程仓库或部署。
+模块使用 `#/perception` 等 hash 路由，资源使用相对路径，支持 GitHub Pages 的仓库子路径。
+
+## GitHub Pages 发布
+
+远程仓库：<https://github.com/CYandYue/ExRAIL_Demo>
+
+已在仓库 **Settings → Pages** 配置：
+
+- Source：**Deploy from a branch**。
+- Branch：**main**，目录：**/ (root)**。
+- 发布地址：<https://cyandyue.github.io/ExRAIL_Demo/>
+
+这是纯静态网站，无需构建。根目录的 `.nojekyll` 让 Pages 直接发布静态文件。之后将修改提交并推送到 `main`，GitHub Pages 会自动更新；部署进度可在仓库 **Actions** 的 **pages build and deployment** 中查看。
 
 ## 内容说明
 
