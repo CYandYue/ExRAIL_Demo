@@ -22,6 +22,11 @@
   const url = paper => `https://arxiv.org/abs/${paper.arxiv}`;
   const extLink = (href, label, cls = '') => `<a class="${cls}" href="${href}" target="_blank" rel="noopener noreferrer">${label}${external}</a>`;
   const person = id => D.people[id];
+  const mediaTitle = id => {
+    const media = D.media[id];
+    const moduleId = media.module ?? id.replace('Detail', '');
+    return media.title ? t(media.title) : moduleId === 'system' ? 'ExRAIL System' : D.modules[moduleId].name;
+  };
   const route = () => {
     const key = location.hash.replace('#/', '');
     return Object.hasOwn(D.modules, key) ? key : 'home';
@@ -45,12 +50,12 @@
   function visual(id, { autoplay = false } = {}) {
     const m = D.media[id];
     const preview = Boolean(autoplay && m.video);
-    const title = id === 'system' ? 'ExRAIL System' : D.modules[id.replace('Detail', '')].name;
+    const title = mediaTitle(id);
     const videoLabel = preview ? copy('Enlarge demo', '放大演示') : copy('Watch demo', '播放演示');
     const picture = preview
       ? `<video class="preview-video" data-preview="${id}" src="${m.video}" poster="${m.poster}" autoplay muted loop playsinline preload="metadata" aria-label="${title} ${copy('demo preview', '演示预览')}"></video>`
       : `<img src="${m.poster}" alt="${title} ${m.video ? copy('demo poster', '演示封面') : copy('conceptual illustration', '概念示意图')}" loading="lazy" width="640" height="360">`;
-    return `<div class="media-preview${preview ? ' autoplay-preview' : ''}">${picture}${m.video ? `<button class="media-play${preview ? ' preview-expand' : ''}" data-media="${id}" aria-label="${videoLabel}"><span>${preview ? expand : play}</span>${preview ? '' : videoLabel}</button>${preview ? `<button class="preview-toggle" type="button" aria-label="${copy('Pause preview', '暂停预览')}">${pause}</button>` : ''}` : `<span class="media-status">${copy('Video coming soon', '演示视频待更新')}</span>`}</div>`;
+    return `<div class="media-preview${preview ? ' autoplay-preview' : ''}">${picture}${m.video ? `<button class="media-play${preview ? ' preview-expand' : ''}" data-media="${id}" aria-label="${videoLabel}">${preview ? `<span>${expand}</span>` : `<span class="play-pill">${play}<span>${videoLabel}</span></span>`}</button>${preview ? `<button class="preview-toggle" type="button" aria-label="${copy('Pause preview', '暂停预览')}">${pause}</button>` : ''}` : `<span class="media-status">${copy('Video coming soon', '演示视频待更新')}</span>`}</div>`;
   }
   function moduleCard(id) {
     const m = D.modules[id];
@@ -58,6 +63,36 @@
   }
   function systemHub() {
     return `<div class="system-hub${D.media.system.video ? ' has-video' : ''}">${D.media.system.video ? `<h3>ExRAIL System</h3>${visual('system', { autoplay: true })}` : `<div class="hub-orbit">${mark}</div><h3>ExRAIL System</h3><button class="hub-demo" type="button" data-media="system">${copy('Video coming soon', '演示视频待更新')}</button>`}</div>`;
+  }
+  let connectionObserver = null;
+  function connectSystem() {
+    connectionObserver?.disconnect();
+    const map = document.querySelector('.system-map');
+    if (!map) return;
+    const svg = map.querySelector('.system-connectors');
+    const hub = map.querySelector('.system-hub');
+    const modules = ['perception', 'memory', 'navigation'].map(id => map.querySelector(`.module-${id}`));
+    const update = () => {
+      if (getComputedStyle(svg).display === 'none') return;
+      const bounds = map.getBoundingClientRect();
+      const center = hub.getBoundingClientRect();
+      svg.setAttribute('viewBox', `0 0 ${bounds.width} ${bounds.height}`);
+      const paths = modules.map((module, index) => {
+        const rect = module.getBoundingClientRect();
+        if (index === 2) return `M${rect.x + rect.width / 2 - bounds.x} ${rect.top - bounds.y} L${center.x + center.width / 2 - bounds.x} ${center.bottom - bounds.y}`;
+        const startX = (index === 0 ? rect.right : rect.left) - bounds.x;
+        const startY = rect.y + rect.height / 2 - bounds.y;
+        const endX = (index === 0 ? center.left : center.right) - bounds.x;
+        const endY = center.y + center.height / 2 - bounds.y;
+        const bendX = (startX + endX) / 2;
+        return `M${startX} ${startY} C${bendX} ${startY} ${bendX} ${endY} ${endX} ${endY}`;
+      });
+      svg.querySelector('path').setAttribute('d', paths.join(' '));
+      svg.querySelectorAll('animateMotion').forEach((motion, index) => motion.setAttribute('path', paths[index]));
+    };
+    connectionObserver = new ResizeObserver(update);
+    [map, hub, ...modules].forEach(element => connectionObserver.observe(element));
+    update();
   }
   function paperRow(p) {
     return `<article class="paper-row" data-paper="${p.id}"><a class="paper-image" href="${url(p)}" target="_blank" rel="noopener noreferrer" aria-label="${p.title}"><img src="${p.image}" alt="${p.name} ${copy('paper figure', '论文插图')}" width="240" height="150" loading="lazy"></a><div class="paper-info"><div class="paper-meta"><span class="mono">2026</span>${p.modules.map(id => `<span class="paper-category">${moduleName(id)}</span>`).join('')}</div><h3>${extLink(url(p), p.title)}</h3><p>${t(p.summary)}</p><div class="paper-author">${person(p.lead).name} et al. <span>·</span> arXiv:${p.arxiv}</div></div><a class="paper-open" href="${url(p)}" target="_blank" rel="noopener noreferrer" aria-label="${copy('Read', '阅读')} ${p.name}">${external}</a></article>`;
@@ -81,7 +116,7 @@
     }).join('')}</div>`;
   }
   function platform() {
-    return `<section class="detail-section platform-section"><div class="section-heading"><div><h2>${copy('Meet the mobile platform.', '认识我们的移动平台。')}</h2></div><span class="mono section-side-note">AGILEX SCOUT MINI</span></div><div class="platform-grid"><figure class="robot-figure"><img src="./assets/platform/robot.jpg" alt="Agilex SCOUT MINI robot with RealSense D435 and dual Livox MID360 LiDARs" width="534" height="580" loading="lazy"><figcaption>${copy('Robot image from RAG-3DSG, real-world deployment figure.', '小车图片摘自 RAG-3DSG 的真实机器人部署插图。')} ${extLink('https://arxiv.org/abs/2601.10168', copy('Source', '来源'))}</figcaption></figure><div class="sensor-list">${[
+    return `<section class="detail-section platform-section"><div class="section-heading"><div><h2>${copy('Meet the mobile platform.', '认识我们的移动平台。')}</h2></div><span class="mono section-side-note">AGILEX SCOUT MINI</span></div><div class="platform-grid"><figure class="robot-figure"><img src="./assets/platform/robot-platform.jpg" alt="Agilex SCOUT MINI robot with RealSense D435 and dual Livox MID360 LiDARs" width="1600" height="1280" loading="lazy"><figcaption>${extLink('https://psg-nav.github.io/', copy('Platform photo · PSG-Nav', '平台照片 · PSG-Nav'))}</figcaption></figure><div class="sensor-list">${[
       ['01', 'RealSense D435', copy('RGB camera', 'RGB 相机'), copy('Visual appearance for RGB-D observations.', '为 RGB-D 观测提供 RGB 外观信息。')],
       ['02', '2 × Livox MID360', copy('LiDAR sensing', '激光雷达'), copy('Surrounding geometry, odometry, and depth correction.', '提供周围环境几何，用于里程计与深度修正。')],
       ['03', 'CH110 IMU', copy('Inertial sensing', '惯性传感器'), copy('Inertial measurements for LiDAR–IMU odometry.', '为激光惯性里程计提供惯性测量。')],
@@ -91,10 +126,19 @@
   function detailPaper(p, memory) {
     return `<article class="detail-paper"><div class="detail-paper-image"><img src="${p.image}" alt="${p.name} ${copy('research figure', '研究插图')}" width="640" height="360" loading="lazy"></div><div class="detail-paper-copy"><h3>${p.name}</h3><p class="full-paper-title">${p.title}</p><p>${t(p.summary)}</p>${memory ? `<div class="mini-io"><div><span class="eyebrow">${copy('INPUT', '输入')}</span><p>${t(p.input)}</p></div><div><span class="eyebrow">${copy('OUTPUT', '输出')}</span><p>${t(p.output)}</p></div></div>` : ''}<div class="detail-paper-links">${extLink(url(p), copy('Read paper', '阅读论文'), 'text-link')}${p.code ? extLink(p.code, copy('Code', '代码'), 'text-link') : ''}${p.project ? extLink(p.project, copy('Project page', '项目主页'), 'text-link') : ''}</div><span class="detail-author">${copy('First author', '第一作者')}: ${person(p.lead).name} · arXiv:${p.arxiv}</span></div></article>`;
   }
+  function detailResearch(id, papers) {
+    if (D.modules[id].showPapers === false) return '';
+    return `<section class="detail-section detail-research"><div class="section-heading"><div><h2>${id === 'memory' ? copy('Three ideas. A richer memory.', '三项工作，丰富场景记忆。') : copy('The work behind it.', '模块背后的研究。')}</h2></div></div>${papers.map(p => detailPaper(p, id === 'memory')).join('')}</section>`;
+  }
+  function demoSection(id) {
+    const groups = D.videoGroups?.[id];
+    if (!groups) return `<section class="detail-section extra-video"><div><h2>${copy('A closer look, in motion.', '更多细节，动态呈现。')}</h2></div>${visual(id + 'Detail')}</section>`;
+    return `<section class="detail-section demo-gallery"><div class="section-heading"><h2>${copy('A closer look, in motion.', '更多细节，动态呈现。')}</h2>${extLink('https://psg-nav.github.io/', copy('PSG-Nav project', 'PSG-Nav 项目'), 'text-link')}</div>${groups.map(group => `<div class="demo-group"><div class="demo-group-heading"><h3>${t(group.title)}</h3>${group.platformLink ? `<a class="text-link" href="#/perception">${copy('Robot platform', '硬件平台')}${arrow}</a>` : ''}</div><div class="demo-grid">${group.videos.map(key => `<article class="demo-card">${visual(key)}<h4>${mediaTitle(key)}</h4></article>`).join('')}</div></div>`).join('')}</section>`;
+  }
   function detail(id) {
     const m = D.modules[id];
     const papers = D.papers.filter(p => p.modules.includes(id));
-    return `<main id="main" class="detail-main"><div class="container"><div class="detail-breadcrumb"><a href="#">${copy('Home', '首页')}</a><span>/</span><a href="#system">${copy('The system', '整体系统')}</a><span>/</span><span>${m.name}</span></div><div class="detail-heading"><div><h1 tabindex="-1">${m.name}<span class="detail-chinese-name">${m.chineseName}</span></h1></div><div class="lead-card">${owner(m.lead)}</div></div><nav class="module-tabs" aria-label="${copy('Research modules', '研究模块')}">${Object.keys(D.modules).map(key => `<a href="#/${key}" class="${key === id ? 'active' : ''}" ${key === id ? 'aria-current="page"' : ''}>${icon(key)}${D.modules[key].name}<span>${D.modules[key].number}</span></a>`).join('')}</nav><section class="detail-overview"><div class="detail-overview-copy"><h2>${t(m.tagline)}</h2><p>${t(m.description)}</p><div class="tag-list">${m.tags.map(tag => `<span>${tag}</span>`).join('')}</div></div><div class="detail-visual">${visual(id, { autoplay: id === 'perception' })}</div></section><section class="detail-section"><div class="section-heading"><div><h2>${m.interfaceTitle ? t(m.interfaceTitle) : copy('From input to insight.', '从输入到输出。')}</h2></div></div>${flow(m)}</section>${id === 'perception' ? platform() : ''}<section class="detail-section method-section"><div class="section-heading"><div><h2>${copy('Inside the module.', '走进模块内部。')}</h2></div></div><div class="method-grid">${m.steps.map((step, i) => `<article><span class="step-number mono">0${i + 1}</span><h3>${t(step.title)}</h3><p>${t(step.text)}</p></article>`).join('')}</div></section><section class="detail-section detail-research"><div class="section-heading"><div><h2>${id === 'memory' ? copy('Three ideas. A richer memory.', '三项工作，丰富场景记忆。') : copy('The work behind it.', '模块背后的研究。')}</h2></div></div>${papers.map(p => detailPaper(p, id === 'memory')).join('')}</section><section class="detail-section extra-video"><div><h2>${copy('A closer look, in motion.', '更多细节，动态呈现。')}</h2></div>${visual(id + 'Detail')}</section><div class="detail-next"><a href="#system">${arrow}${copy('Back to the system', '返回整体系统')}</a><a href="#/${id === 'perception' ? 'memory' : id === 'memory' ? 'navigation' : 'perception'}">${copy('Next module', '下一个模块')}<strong>${D.modules[id === 'perception' ? 'memory' : id === 'memory' ? 'navigation' : 'perception'].name}</strong>${arrow}</a></div></div></main>`;
+    return `<main id="main" class="detail-main"><div class="container"><div class="detail-breadcrumb"><a href="#">${copy('Home', '首页')}</a><span>/</span><a href="#system">${copy('The system', '整体系统')}</a><span>/</span><span>${m.name}</span></div><div class="detail-heading"><div><h1 tabindex="-1">${m.name}<span class="detail-chinese-name">${m.chineseName}</span></h1></div><div class="lead-card">${owner(m.lead)}</div></div><nav class="module-tabs" aria-label="${copy('Research modules', '研究模块')}">${Object.keys(D.modules).map(key => `<a href="#/${key}" class="${key === id ? 'active' : ''}" ${key === id ? 'aria-current="page"' : ''}>${icon(key)}${D.modules[key].name}</a>`).join('')}</nav><section class="detail-overview"><div class="detail-overview-copy"><h2>${t(m.tagline)}</h2><p>${t(m.description)}</p><div class="tag-list">${m.tags.map(tag => `<span>${tag}</span>`).join('')}</div></div><div class="detail-visual">${visual(id, { autoplay: true })}</div></section><section class="detail-section"><div class="section-heading"><div><h2>${m.interfaceTitle ? t(m.interfaceTitle) : copy('From input to insight.', '从输入到输出。')}</h2></div></div>${flow(m)}</section>${id === 'perception' ? platform() : ''}<section class="detail-section method-section"><div class="section-heading"><div><h2>${copy('Inside the module.', '走进模块内部。')}</h2></div></div><div class="method-grid">${m.steps.map((step, i) => `<article><span class="step-number mono">0${i + 1}</span><h3>${t(step.title)}</h3><p>${t(step.text)}</p></article>`).join('')}</div></section>${detailResearch(id, papers)}${demoSection(id)}<div class="detail-next"><a href="#system">${arrow}${copy('Back to the system', '返回整体系统')}</a><a href="#/${id === 'perception' ? 'memory' : id === 'memory' ? 'navigation' : 'perception'}">${copy('Next module', '下一个模块')}<strong>${D.modules[id === 'perception' ? 'memory' : id === 'memory' ? 'navigation' : 'perception'].name}</strong>${arrow}</a></div></div></main>`;
   }
   const dialog = document.querySelector('#media-dialog');
   let previewsToResume = [];
@@ -128,8 +172,7 @@
   function openMedia(id) {
     const media = D.media[id];
     if (!media) return;
-    const key = id.replace('Detail', '');
-    const title = key === 'system' ? 'ExRAIL System' : D.modules[key].name;
+    const title = mediaTitle(id);
     dialogPreview = [...document.querySelectorAll('[data-preview]')].find(video => video.dataset.preview === id) ?? null;
     const startTime = dialogPreview?.currentTime ?? 0;
     previewsToResume = [...document.querySelectorAll('[data-preview]')].filter(video => !video.paused);
@@ -157,6 +200,7 @@
     document.title = current === 'home' ? 'ExRAIL · Embodied Intelligence, Connected' : `${D.modules[current].name} · ExRAIL Lab`;
     document.querySelector('#app').innerHTML = header(current) + (current === 'home' ? home() : detail(current)) + footer();
     startPreviews();
+    connectSystem();
     updateCount();
     if (keepScroll) window.scrollTo({ top: scrollPosition, behavior: 'instant' });
     else {

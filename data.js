@@ -10,10 +10,26 @@ window.EXRAIL = {
     system: { video: null, poster: './assets/scene.svg' },
     perception: { video: './material/perception.mp4', poster: './assets/platform/perception-poster.jpg' },
     memory: { video: null, poster: './assets/memory.svg' },
-    navigation: { video: null, poster: './assets/navigation.svg' },
+    navigation: { video: './material/navigation/real-chair.mp4', poster: './assets/navigation/real-chair.jpg' },
     perceptionDetail: { video: null, poster: './assets/perception.svg' },
     memoryDetail: { video: null, poster: './assets/memory.svg' },
-    navigationDetail: { video: null, poster: './assets/navigation.svg' }
+    navigationDetail: { video: null, poster: './assets/navigation.svg' },
+    navRealChair: { module: 'navigation', title: { en: 'Find a chair', zh: '寻找椅子' }, video: './material/navigation/real-chair.mp4', poster: './assets/navigation/real-chair.jpg' },
+    navRealKeyboard: { module: 'navigation', title: { en: 'Find a keyboard', zh: '寻找键盘' }, video: './material/navigation/real-keyboard.mp4', poster: './assets/navigation/real-keyboard.jpg' },
+    navHm3dChair: { module: 'navigation', title: { en: 'HM3D · Chair', zh: 'HM3D · 椅子' }, video: './material/navigation/hm3d-chair.mp4', poster: './assets/navigation/hm3d-chair.jpg' },
+    navHm3dPlant: { module: 'navigation', title: { en: 'HM3D · Plant', zh: 'HM3D · 植物' }, video: './material/navigation/hm3d-plant.mp4', poster: './assets/navigation/hm3d-plant.jpg' },
+    navHm3dTv: { module: 'navigation', title: { en: 'HM3D · TV', zh: 'HM3D · 电视' }, video: './material/navigation/hm3d-tv.mp4', poster: './assets/navigation/hm3d-tv.jpg' },
+    navMp3dDrawers: { module: 'navigation', title: { en: 'MP3D · Chest of drawers', zh: 'MP3D · 抽屉柜' }, video: './material/navigation/mp3d-chest-of-drawers.mp4', poster: './assets/navigation/mp3d-chest-of-drawers.jpg' },
+    navOvonCloths: { module: 'navigation', title: { en: 'Find cloths', zh: '寻找布料' }, video: './material/navigation/ovon_cloths.mp4', poster: './assets/navigation/ovon_cloths.jpg' },
+    navOvonPillow: { module: 'navigation', title: { en: 'Find a pillow', zh: '寻找枕头' }, video: './material/navigation/ovon_pillow.mp4', poster: './assets/navigation/ovon_pillow.jpg' },
+    navOvonRug: { module: 'navigation', title: { en: 'Find a rug', zh: '寻找地毯' }, video: './material/navigation/ovon_rug.mp4', poster: './assets/navigation/ovon_rug.jpg' }
+  },
+  videoGroups: {
+    navigation: [
+      { title: { en: 'Real-world navigation', zh: '真实场景导航' }, videos: ['navRealChair', 'navRealKeyboard'], platformLink: true },
+      { title: { en: 'EEC error correction', zh: 'EEC 误检纠正' }, videos: ['navHm3dChair', 'navHm3dPlant', 'navHm3dTv', 'navMp3dDrawers'] },
+      { title: { en: 'Open-vocabulary navigation', zh: '开放词汇导航' }, videos: ['navOvonCloths', 'navOvonPillow', 'navOvonRug'] }
+    ]
   },
   papers: [
     {
@@ -51,7 +67,7 @@ window.EXRAIL = {
   ],
   modules: {
     perception: {
-      number: '01', name: 'Perception', chineseName: '感知', lead: 'yue', tags: ['Dual-LiDAR FAST-LIO', 'Hybrid RGB-D', 'LiDAR depth registration'],
+      number: '01', name: 'Perception', chineseName: '感知', lead: 'yue', showPapers: false, tags: ['Dual-LiDAR FAST-LIO', 'Hybrid RGB-D', 'LiDAR depth registration'],
       tagline: { en: 'Ground intelligence in the physical world.', zh: '让智能扎根于真实世界。' },
       summary: { en: 'Dual-LiDAR FAST-LIO odometry + hybrid RGB-D with LiDAR-registered depth.', zh: '双雷达 FAST-LIO 里程计 + 复合型 RGB-D（雷达配准深度）。' },
       description: { en: 'Our perception pipeline combines dual-LiDAR FAST-LIO odometry with hybrid RGB-D built from RealSense RGB and LiDAR-registered depth. It provides camera and chassis poses, the TF tree between components, RGB-D images, and raw LiDAR point clouds.', zh: '感知管线结合双雷达 FAST-LIO 里程计与复合型 RGB-D，将 RealSense RGB 与雷达配准后的深度配对，输出相机与底盘位姿、各部分之间的 TF tree、RGB-D 图像以及雷达原始点云。' },

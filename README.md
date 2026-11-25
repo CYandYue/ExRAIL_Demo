@@ -21,6 +21,7 @@ python3 -m http.server 4173 --bind 127.0.0.1
 | --- | --- |
 | `people` | 姓名、头像、个人主页、研究介绍 |
 | `media` | 首页与详情页的视频、封面 |
+| `videoGroups` | Navigation 视频分组及各组录像列表 |
 | `papers` | 论文题目、arXiv、介绍、输入输出及模块归属 |
 | `modules` | 模块介绍、输入、处理、输出及工作原理 |
 
@@ -39,9 +40,9 @@ memory: {
 
 `system`、`perception`、`memory`、`navigation` 对应首页视频；`perceptionDetail`、`memoryDetail`、`navigationDetail` 对应详情页的补充视频。
 
-目前仅 `perception` 接入实际录像。其他视频设置为 `null` 时显示概念示意与待更新标记，不会产生空播放器。感知视频封面从原始录像第 3 秒提取。
+目前 `perception` 接入平台感知录像，`navigation` 接入 PSG-Nav 真实场景录像。Navigation 的补充演示包含真实场景、EEC 纠错与开放词汇三组，共九段录像，全部下载到本地。其他视频设置为 `null` 时显示概念示意与待更新标记，不会产生空播放器。
 
-首页已有视频会静音、循环、行内自动播放，可以暂停；点击视频会在弹窗中接续当前播放位置，关闭后恢复此前正在播放的预览。Perception 详情页的主演示也采用相同方式，其他详情视频采用点击播放。
+首页和各模块详情页的主演示会静音、循环、行内自动播放，可以暂停；点击视频会在弹窗中接续当前播放位置，关闭后恢复此前正在播放的预览。视频集中的录像点击播放。
 
 ### 页面与样式
 
@@ -54,7 +55,7 @@ memory: {
 
 ## 内容说明
 
-- 感知硬件图片来自 RAG-3DSG 论文，当前感知方案采用用户提供的 multi-fastlio 与 LiDAR 修正深度配置。
+- 感知硬件展示使用 PSG-Nav 项目提供的清晰小车照片，当前方案采用用户提供的 multi-fastlio 与 LiDAR 修正深度配置。Perception 详情页聚焦输入输出与硬件，已移除论文区域。
 - Memory 按 JITOMA、RAG-3DSG、PORTER 分别展示；概览中的输入输出是研究方法的模块级整理。
 - Navigation 根据 PSG-Nav 摘要整理，负责人按论文第一作者选 Rufeng Chen。
 - 首页三维场景、记忆图及导航路径是概念示意；实际实验演示通过视频呈现。
@@ -65,3 +66,5 @@ memory: {
 Avoid unnecessary secondary labels and descriptions. Let the layout do the explaining.
 
 用标题、留白与布局表达层次，避免装饰性小字、坐标与重复提示；保留必要且易读的研究信息。后续修改遵循 [AGENTS.md](AGENTS.md)。总览页的三个红点均从模块流向 System。
+
+正文通常为 16px，辅助文字至少 14px，并使用更深的文字颜色；手机端保持字号，通过换行和单列布局适配。系统卡片与连线随内容高度自动调整。
